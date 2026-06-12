@@ -1,0 +1,12 @@
+{
+  "name": "canvas-qa-orchestrator-root",
+  "version": "1.0.0",
+  "description": "Root workspace workspace runner",
+  "scripts": {
+    "backend:install": "cd backend && npm install",
+    "backend:start": "node backend/orchestrator.js",
+    "dashboard:install": "cd dashboard && npm install",
+    "dashboard:dev": "cd dashboard && npm run dev",
+    "start": "node backend/orchestrator.js"
+  }
+}

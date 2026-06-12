@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+  # ==========================================
+  # Backend Orchestration & Playwright Runner
+  # ==========================================
+  backend_service:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: qa_backend
+    ports:
+      - "3000:3000"
+    volumes:
+      # Mount backend directory to enable hot-reloading of orchestrator.js
+      - ./backend:/app/backend
+      # Mount engine directory to enable hot-reloading of core_worker.py
+      - ./engine:/app/engine
+      # Anonymous volume prevents local node_modules from overwriting container-installed ones
+      - /app/backend/node_modules
+      # Anonymous volume for python cache
+      - /app/engine/__pycache__
+    environment:
+      - PORT=3000
+      - NODE_ENV=development
+    # Ensure browsers run smoothly inside Docker (sandboxing can sometimes fail in basic containers)
+    ipc: host
+
+  # ==========================================
+  # Frontend Developer Telemetry Dashboard
+  # ==========================================
+  frontend_dashboard:
+    build:
+      context: ./dashboard
+      dockerfile: Dockerfile
+    container_name: qa_dashboard
+    ports:
+      - "5173:5173"
+    volumes:
+      # Mount dashboard directory to enable HMR (Hot Module Replacement)
+      - ./dashboard:/app
+      # Anonymous volume prevents local node_modules from overwriting container-installed ones
+      - /app/node_modules
+    depends_on:
+      - backend_service
+    environment:
+      - VITE_API_URL=http://localhost:3000
